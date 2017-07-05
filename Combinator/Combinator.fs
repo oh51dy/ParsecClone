@@ -116,7 +116,7 @@ module Combinator =
 
         let didFind found currentState = 
                 match List.length found with 
-                    | x when x > 0 && x >= minCount -> (Some(List.rev found), currentState) 
+                    | x when x >= minCount -> (Some(List.rev found), currentState)
                     | x when x < minCount -> failwith ("Needed to consume at least " + minCount.ToString() + " element but did not")
                     | _ -> (None, currentState)
                
