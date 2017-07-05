@@ -120,17 +120,22 @@ module Combinator =
                     | x when x < minCount -> failwith ("Needed to consume at least " + minCount.ToString() + " element but did not")
                     | _ -> (None, currentState)
                
-        fun state ->
-            let rec many' parser (resultList, currentState:State<_,_,_>) =              
+        fun (state: State<_,_,_>) ->
+            let rec many' parser (resultList, currentState:State<_,_,_>) =
+                let mutable lastPosition = currentState.position ()
                 let returnValue() = didFind resultList currentState
-
                 match currentState.hasMore() with
-                    | false -> returnValue()
-                    | true ->                        
-                        match parser currentState with
-                            | Some(result), nextState when not <| predicate (result::resultList)  -> many' parser (result::resultList, nextState)
-                            | Some(_), _ ->  currentState.backtrack(); returnValue()
-                            | _ ->  returnValue()
+                | false -> returnValue()
+                | true ->
+                    match parser currentState with
+                        | Some(result), (nextState : State<_,_,_>) when lastPosition = nextState.position ()
+                            -> didFind (result::resultList) currentState
+                        | Some(result), nextState when not <| predicate (result::resultList)  ->
+                            lastPosition <- nextState.position ()
+                            many' parser (result::resultList, nextState)
+                        | Some(_), _ ->
+                            currentState.backtrack(); returnValue()
+                        | _ -> returnValue()
                         
                                   
             many' parser ([], state)
