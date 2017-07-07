@@ -358,7 +358,7 @@ let lookaheadAndSeekRaw () =
 
 
 [<Test>]
-let testMany () =
+let testManyZeroOrMoreMatches () =
   let (bp: BinParser<unit>) = new BinParser<_> (id)
 
   let pByteZero = bp.matchBytes [| 00uy |] |>> (fun _ -> 00uy)
